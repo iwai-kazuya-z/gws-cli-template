@@ -99,3 +99,33 @@ tasks:
     dir: '{{.GWS_CLI_DIR}}'
     cmds:
       - chmod +x scripts/helper-xlsx-to-sheets.sh && ./scripts/helper-xlsx-to-sheets.sh {{.CLI_ARGS}}
+
+  xlsx-update:
+    desc: "Helper: Sheets 版の編集を元の xlsx に書き戻す"
+    dir: '{{.GWS_CLI_DIR}}'
+    cmds:
+      - chmod +x scripts/helper-xlsx-update.sh && ./scripts/helper-xlsx-update.sh {{.CLI_ARGS}}
+
+  sheets-read:
+    desc: "Helper: Sheets データ読み取り"
+    dir: '{{.GWS_CLI_DIR}}'
+    cmds:
+      - chmod +x scripts/helper-sheets-rw.sh && ./scripts/helper-sheets-rw.sh read {{.CLI_ARGS}}
+
+  sheets-write:
+    desc: "Helper: Sheets データ書き込み"
+    dir: '{{.GWS_CLI_DIR}}'
+    cmds:
+      - chmod +x scripts/helper-sheets-rw.sh && ./scripts/helper-sheets-rw.sh write {{.CLI_ARGS}}
+
+  sheets-append:
+    desc: "Helper: Sheets データ追記"
+    dir: '{{.GWS_CLI_DIR}}'
+    cmds:
+      - chmod +x scripts/helper-sheets-rw.sh && ./scripts/helper-sheets-rw.sh append {{.CLI_ARGS}}
+
+  sheets-list:
+    desc: "Helper: シート一覧取得"
+    dir: '{{.GWS_CLI_DIR}}'
+    cmds:
+      - chmod +x scripts/helper-sheets-rw.sh && ./scripts/helper-sheets-rw.sh sheets {{.CLI_ARGS}}

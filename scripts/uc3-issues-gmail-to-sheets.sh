@@ -69,7 +69,7 @@ echo "  検索クエリ: ${GMAIL_QUERY}"
 
 MESSAGES=$(gws gmail users messages list \
   --params "{\"userId\": \"me\", \"q\": \"${GMAIL_QUERY}\", \"maxResults\": 20}" \
-  --format json)
+  --format json 2>/dev/null)
 
 MSG_IDS=$(echo "$MESSAGES" | jq -r '.messages[]?.id // empty')
 MSG_COUNT=$(echo "$MESSAGES" | jq '.messages | length // 0')

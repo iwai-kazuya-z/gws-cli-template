@@ -43,14 +43,22 @@ echo "========================================="
 echo ""
 echo "📄 Step 1: ファイル情報を取得中..."
 
+# stderr を除外して取得（GWS CLI の keyring メッセージが jq を壊すため）
 FILE_INFO=$(gws drive files get \
   --params "{\"fileId\": \"${FILE_ID}\", \"fields\": \"id,name,mimeType,parents\", \"supportsAllDrives\": true}" \
-  --format json 2>&1)
+  --format json 2>/dev/null) || true
+
+# JSON パースチェック
+if ! echo "$FILE_INFO" | jq empty 2>/dev/null; then
+  echo "❌ GWS CLI の応答が不正です。認証を確認してください。"
+  echo "   gws auth status"
+  exit 1
+fi
 
 if echo "$FILE_INFO" | jq -e '.error' &>/dev/null; then
   echo "❌ ファイルが見つかりません (ID: ${FILE_ID})"
   echo "   共有ドライブのファイルは supportsAllDrives が必要です。"
-  echo "$FILE_INFO" | jq '.error.message'
+  echo "$FILE_INFO" | jq -r '.error.message'
   exit 1
 fi
 
@@ -72,11 +80,11 @@ else
   echo ""
   echo "📊 Step 2: Google Sheets 形式にコピー中..."
   
-  # Drive API の copy で mimeType を指定して変換コピー
+  # Drive API の copy で mimeType を指定して変換コピー（2>/dev/null で stderr 除外）
   COPY_RESULT=$(gws drive files copy \
     --params "{\"fileId\": \"${FILE_ID}\", \"supportsAllDrives\": true}" \
     --json "{\"name\": \"${FILE_NAME} (Sheets変換)\", \"mimeType\": \"${SHEETS_MIME}\"}" \
-    --format json)
+    --format json 2>/dev/null)
   
   SHEETS_ID=$(echo "$COPY_RESULT" | jq -r '.id')
   echo "  ✅ 変換コピー完了: ${SHEETS_ID}"
@@ -91,7 +99,7 @@ echo "📖 Step 3: データ読み取り中... (範囲: ${RANGE})"
 
 DATA=$(gws sheets spreadsheets values get \
   --params "{\"spreadsheetId\": \"${SHEETS_ID}\", \"range\": \"${RANGE}\"}" \
-  --format json)
+  --format json 2>/dev/null)
 
 ROW_COUNT=$(echo "$DATA" | jq '.values | length // 0')
 echo "  取得した行数: ${ROW_COUNT}"

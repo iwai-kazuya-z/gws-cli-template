@@ -41,7 +41,7 @@ echo "  検索クエリ: ${SEARCH_QUERY}"
 
 MESSAGES=$(gws gmail users messages list \
   --params "{\"userId\": \"me\", \"q\": \"${SEARCH_QUERY}\", \"maxResults\": 10}" \
-  --format json)
+  --format json 2>/dev/null)
 
 MESSAGE_COUNT=$(echo "$MESSAGES" | jq '.messages | length // 0')
 echo "  見つかったメール: ${MESSAGE_COUNT} 件"
@@ -68,7 +68,7 @@ FIRST_MSG_ID=$(echo "$MESSAGES" | jq -r '.messages[0].id')
 
 MSG_DETAIL=$(gws gmail users messages get \
   --params "{\"userId\": \"me\", \"id\": \"${FIRST_MSG_ID}\"}" \
-  --format json)
+  --format json 2>/dev/null)
 
 # 件名を取得
 SUBJECT=$(echo "$MSG_DETAIL" | jq -r '.payload.headers[] | select(.name == "Subject") | .value')

@@ -31,7 +31,7 @@ PRESENTATION_ID="${SLIDES_PRESENTATION_ID:?'SLIDES_PRESENTATION_ID を .env で�
 echo "📊 Step 1: プレゼンテーション情報を取得中..."
 PRESENTATION_INFO=$(gws slides presentations get \
   --params "{\"presentationId\": \"${PRESENTATION_ID}\"}" \
-  --format json)
+  --format json 2>/dev/null)
 
 echo "タイトル: $(echo "$PRESENTATION_INFO" | jq -r '.title')"
 echo "スライド数: $(echo "$PRESENTATION_INFO" | jq '.slides | length')"
@@ -68,9 +68,11 @@ NEW_SLIDE_ID="slide_copy_$(date +%s)"
 ELEMENT_IDS=$(echo "$PRESENTATION_INFO" | jq -r ".slides[-1].pageElements[]?.objectId")
 
 OBJECT_IDS_MAP="{\"${TEMPLATE_SLIDE_ID}\": \"${NEW_SLIDE_ID}\""
+ELEM_IDX=0
 for EID in $ELEMENT_IDS; do
-  NEW_EID="${EID}_copy_$(date +%s)"
+  NEW_EID="${EID}_copy_${ELEM_IDX}_$(date +%s)"
   OBJECT_IDS_MAP="${OBJECT_IDS_MAP}, \"${EID}\": \"${NEW_EID}\""
+  ELEM_IDX=$((ELEM_IDX + 1))
 done
 OBJECT_IDS_MAP="${OBJECT_IDS_MAP}}"
 
@@ -86,7 +88,7 @@ DUPLICATE_RESULT=$(gws slides presentations batchUpdate \
       }
     ]
   }" \
-  --format json)
+  --format json 2>/dev/null)
 
 echo "✅ スライド複製完了: ${NEW_SLIDE_ID}"
 
