@@ -18,6 +18,7 @@ gws-cli/
     ├── uc1-slides-template.sh          # UC1: Slides テンプレート量産
     ├── uc2-gmail-to-drive.sh           # UC2: Gmail 添付 → Drive 保存
     ├── uc3-issues-gmail-to-sheets.sh   # UC3: Issues + Gmail → Sheets
+    ├── uc4-ga4-report.sh               # UC4: GA4 runReport 汎用 CLI (stdout)
     ├── helper-xlsx-to-sheets.sh        # Helper: Excel → Sheets 変換 & 読み取り
     ├── helper-xlsx-update.sh           # Helper: Sheets 版 → 元 xlsx 書き戻し
     └── helper-sheets-rw.sh            # Helper: Sheets 汎用 読み書き
@@ -121,6 +122,45 @@ chmod +x scripts/uc3-issues-gmail-to-sheets.sh
 ```
 
 **出力シートの列:** No / ソース / タイトル / Issue番号 / ラベル / 作成者 / 日時 / URL / ステータス
+
+### UC4: GA4 runReport 汎用 CLI
+
+GA4 Data API の `runReport` を叩き、結果を **stdout** に返す汎用ツール。Biz フロー `Devin → dorapita-mcp → gws-cli → Notion` の中で、gws-cli レイヤの GA4 取得 CLI として位置付ける。Sheets/Notion への書き込みは行わず、呼び出し元がパイプで受ける前提。
+
+**前提:**
+
+```bash
+# ADC 認証（GWS CLI の gws auth とは別）
+gcloud auth application-default login \
+  --scopes="https://www.googleapis.com/auth/analytics.readonly,https://www.googleapis.com/auth/cloud-platform"
+
+# .env に GA4_PROPERTY_ID を設定
+# 対象 GA4 プロパティに「閲覧者」以上で紐付いた Google アカウントが必要
+```
+
+**使い方:**
+
+```bash
+# サンプル config を使う
+./scripts/uc4-ga4-report.sh --config config/ga4-reports/page-path-activeusers-7d.json
+
+# TSV 出力
+./scripts/uc4-ga4-report.sh --config config/ga4-reports/page-path-activeusers-7d.json --format tsv
+
+# 上流 (Devin/dorapita-mcp) が動的生成した runReport body を stdin から渡す
+echo "$BODY_JSON" | ./scripts/uc4-ga4-report.sh --config - --format ndjson
+
+# property id を明示
+./scripts/uc4-ga4-report.sh --property-id 375307567 --config -
+```
+
+**フラグ:**
+
+| フラグ | 説明 |
+|--------|------|
+| `--property-id <id>` | GA4 プロパティ ID（省略時 `GA4_PROPERTY_ID`） |
+| `--config <path\|->` | runReport body JSON のパス、または `-` で stdin |
+| `--format json\|tsv\|ndjson` | 出力フォーマット（デフォルト `json`） |
 
 ## 🔧 GWS CLI 基本コマンド
 
@@ -226,7 +266,7 @@ task sheets-list -- <SHEET_ID>             # シート一覧
 ```bash
 # 他のリポジトリで submodule 追加
 cd your-project
-git submodule add https://github.com/iwai-kazuya-pvt/gws-cli-template.git gws-cli
+git submodule add https://github.com/iwai-kazuya-z/gws-cli-template.git gws-cli
 git commit -m "feat: add gws-cli submodule"
 
 # .env はリポ固有なので gws-cli/ 内に作成

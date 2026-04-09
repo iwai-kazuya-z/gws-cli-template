@@ -1,0 +1,16 @@
+{
+  "dateRanges": [
+    { "startDate": "7daysAgo", "endDate": "yesterday" }
+  ],
+  "dimensions": [
+    { "name": "pagePath" }
+  ],
+  "metrics": [
+    { "name": "activeUsers" },
+    { "name": "screenPageViews" }
+  ],
+  "orderBys": [
+    { "metric": { "metricName": "activeUsers" }, "desc": true }
+  ],
+  "limit": 50
+}

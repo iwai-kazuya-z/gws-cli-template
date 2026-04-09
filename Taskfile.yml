@@ -87,6 +87,12 @@ tasks:
     cmds:
       - chmod +x scripts/uc3-issues-gmail-to-sheets.sh && ./scripts/uc3-issues-gmail-to-sheets.sh {{.CLI_ARGS}}
 
+  uc4:
+    desc: "UC4: GA4 runReport 汎用 CLI（stdout に結果を返す）"
+    dir: '{{.GWS_CLI_DIR}}'
+    cmds:
+      - chmod +x scripts/uc4-ga4-report.sh && ./scripts/uc4-ga4-report.sh {{.CLI_ARGS}}
+
   all:
     desc: 全ユースケースを順番に実行
     cmds:

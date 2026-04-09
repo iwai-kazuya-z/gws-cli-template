@@ -98,6 +98,7 @@ else
     slides.googleapis.com \
     admin.googleapis.com \
     people.googleapis.com \
+    analyticsdata.googleapis.com \
     2>/dev/null && echo "  ✅ API 有効化完了" || echo "  ⚠️  一部 API の有効化に失敗しました（権限を確認してください）"
 fi
 

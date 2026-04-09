@@ -352,7 +352,6 @@ gws drive files update \
 | Gmail `metadataHeaders` で **ハング** | 使わない。フル取得 → jq でヘッダー抽出 |
 | `--download` フラグが **存在しない** | `--output /path/to/file` を使う |
 | `--format json` を付け忘れると **table 形式** | パイプ前に必ず `--format json` を付ける |
-| macOS に **`timeout` コマンドがない** | `timeout` を使わない。必要なら `brew install coreutils` で `gtimeout` を使う |
 
 ## 📜 GWS CLI コマンド体系
 
@@ -383,6 +382,23 @@ gws <サービス> <リソース> [サブリソース] <メソッド> [フラグ
 | `--upload <PATH>` | ファイルアップロード | `--upload /tmp/file.pdf` |
 | `--output <PATH>` | ファイルダウンロード/エクスポート | `--output /tmp/out.xlsx` |
 | `--page-all` | 自動ページネーション | `--page-all` |
+
+## 📈 GA4 Data API (UC4)
+
+GWS CLI の守備範囲外（`gws` コマンドには無い）なので、ADC + curl で直接 `analyticsdata.googleapis.com` を叩く。UC4 (`scripts/uc4-ga4-report.sh`) がその汎用ラッパー。
+
+- 認証: `gcloud auth application-default login --scopes="https://www.googleapis.com/auth/analytics.readonly,https://www.googleapis.com/auth/cloud-platform"`
+- quota project: `x-goog-user-project: iwai-personal-tools`
+- エンドポイントは **読み取り系に限定**する（`runReport`, 将来の `batchRunReports` / `runPivotReport` 等）。書き込み系は追加しない
+- 出力は stdout 固定。Sheets/Notion 連携は別ツールにパイプで渡す
+
+```bash
+# 静的 config
+./scripts/uc4-ga4-report.sh --config config/ga4-reports/page-path-activeusers-7d.json
+
+# 動的 body（上流エージェントが生成）
+echo "$BODY" | ./scripts/uc4-ga4-report.sh --config - --format ndjson
+```
 
 ## 🛡️ 安全ルール
 
